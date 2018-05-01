@@ -1,0 +1,180 @@
+\documentclass[a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{fancyhdr}
+\usepackage {pstricks-add}
+\usepackage {mathrsfs}
+\usepackage{tikz}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{ucs}
+\usepackage{stmaryrd}
+\usepackage{marvosym}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{mathrsfs}
+\usepackage{manfnt}
+\usepackage{nicefrac}
+\usepackage{mathpartir}
+\usepackage{tikz-qtree}
+
+
+\pagestyle{fancy}
+
+\renewcommand{\headrulewidth}{1pt}
+\fancyhead[L]{Programmation 2} 
+\fancyhead[R]{Manon BLANC}
+
+\renewcommand{\footrulewidth}{1pt}
+\fancyfoot[C]{\textbf{Page \thepage}} 
+\fancyfoot[L]{L3 Informatique}
+
+\title{Devoir maison de Programmation 2}
+\author{Manon BLANC}
+\date{  }
+
+\begin{document}
+	
+	\maketitle
+	\thispagestyle{fancy}
+	
+	\paragraph{question 1.}
+	Les règles de typage de $succ$ et $pred$ sont les suivantes:\\
+	\begin{mathpar}
+		\inferrule
+		{$$\Gamma \vdash  n : nat $$}
+		{$$\Gamma \vdash \ succ (n) : nat$$ }
+		
+		\inferrule 
+		{$$\Gamma \vdash  n : nat $$}
+		{$$\Gamma \vdash \ pred (n) : nat$$ }
+		
+	\end{mathpar}
+	
+	Les sémantiques opérationnelles respectives des ces opérateurs sont les suivantes: \\
+	\begin{mathpar}
+		\inferrule
+		{$$ t \hookrightarrow 0 $$}
+		{$$ succ(t) \hookrightarrow succ(0) $$}
+		
+		\inferrule
+		{$$ t \hookrightarrow u $$}
+		{$$ succ(t) \hookrightarrow succ(u) $$}
+	\end{mathpar}
+    \begin{mathpar}
+    	\inferrule
+    	{$$ t \hookrightarrow 0 $$}
+    	{$$ pred(t) \hookrightarrow 0 $$}
+    	
+    	\inferrule
+    	{$$ t \hookrightarrow u $$}
+    	{$$ pred(t) \hookrightarrow pred(u) $$}
+    \end{mathpar}
+
+	
+	\paragraph{question 2.}
+	On implémente d'abord les règles de typage des opérateurs $plus$ et $fois$:
+	\begin{mathpar}
+		\inferrule
+		{$$ \Gamma \vdash n_1 : nat \\ \Gamma \vdash n_2 : nat $$}
+		{$$ \Gamma \vdash n_1 + n_2 : nat $$}
+		
+		\inferrule
+		{$$ \Gamma \vdash n_1 : nat \\ \Gamma \vdash n_2 : nat $$}
+		{$$ \Gamma \vdash n_1 . n_2 : nat $$}
+	\end{mathpar}	
+     
+     D'où des implémentations en Mini-ML:\\
+     $plus:$
+     $$ \lambda n_1^A. \lambda n_2^A. (if \ n_2 = 0 \ then \ n_1 \ else \ plus (succ(n_1), pred(n_2)) )$$
+     
+     $fois:$
+     $$ \lambda n_1^A. \lambda n_2^A.(if \ (n_1 = 0 || n_2 = 0) \ then \ 0 \ else \ if \ n_1 = 1 \ then \ n_2 \ else \ plus (fois(pred(n_1), n_2), n_2 ) )$$
+	
+	\paragraph{question 3.}
+	$$ f : \lambda x^A . (if \ x=0 \ then \ 1 \ else \ fois(x, f(pred(x)  ))) $$
+	
+	   On donne l'arbre de dérivation du jugement $f \ 1 \hookrightarrow 1$.
+	   On pose $succ(0) = 1$ et :
+	   \begin{mathpar}
+	   	\inferrule
+	   	{$$ t \hookrightarrow 0$$}
+	   	{$$ t \hookrightarrow pred(succ(0)) $$}
+	   \end{mathpar}
+	   
+	   D'où:
+	   \begin{mathpar}
+	   	\inferrule
+	   	{ \inferrule*
+	   	   { \inferrule*
+	   	      { \inferrule* 
+	   	         { \inferrule* 
+	   	            { \inferrule*
+	   	               { \inferrule*
+	   	                  { \inferrule*
+	   	                     { }
+   	                         {$$ 1 \hookrightarrow 1 $$}}
+   	                      {$$ if \ (1=1) \ then \ 1 \ else \ plus(fois(pred(n_1), n_2), n_2) \hookrightarrow 1  $$}}
+   	                   {$$ if \ (1 = 0 || 1=0) \ then \ 0 \ else \ if \ (1=1) \ then \ 1 \ else \ plus(fois(pred(n_1), n_2), n_2) \hookrightarrow 1  $$}}
+   	                {$$ fois (1,1) \hookrightarrow 1 $$}}
+   	             {$$ fois(1, if \ (0=0) \ then \ 1 \ else \ fois(1, f(pred(0) ) ) \hookrightarrow 1 $$}}
+   	          {$$ fois (1, f(0)) \hookrightarrow 1 $$}}
+   	       {$$ if \ (1=0) \ then \ 1 else \ fois(1, f(0) ) \hookrightarrow 1 $$} } 
+	   	{$$ if \ (1 = 0) \ then \ 1 \ else \ fois(1, f(pred(1))) \hookrightarrow 1 $$}
+	   \end{mathpar}
+	   
+	\paragraph{question 4.}
+	 On utilise la commande $fst$, qui est déjà implémentée en Mini-ML, pour extraire la première composante du couple.
+	 
+	\paragraph{question 5.}
+	
+	Le typage des expressions permet d'effectuer des opérations légales et bien typées. Cela permet aussi d'obtenir le résultat voulu (et non un résultat incohérent si le programme termine).
+	
+	\paragraph{question 6.}
+	Supprimée
+	\paragraph{question 7.}
+	Si on a pu donner dans les premières questions des règles de typage et une sémantique à petit pas de $pred$, il n'existe cependant pas d'implémentation en Mini-ML de cette fonction. En effet, cela supposerait que nous avons à notre disposition des opérateurs d'addition et/ou de soustraction et de comparaison autres que l'égalité, ce qui n'est pas le cas ici.
+	
+	\paragraph{question 8.}
+	\paragraph{question 9.}
+	Règle concernée: 
+	\begin{mathpar}
+		\inferrule*
+		{$$ t  \textbf{value} \\ u  \textbf{value} \\ t \not\equiv u $$}
+		{$$ (t = u) \hookrightarrow false $$}
+	\end{mathpar}
+
+     $ \not\equiv $ signifie ici que $t$ et $u$ ont des valeurs différentes ou des types différents (?). On a besoin de ce symbole car sinon, on remplacerait $t \not\equiv u$ par ce qu'on veut démontrer, c'est-à-dire $(t = u) \hookrightarrow false$, et donc obtenir un arbre de dérivation infini, ce qui est absurde.
+
+	\paragraph{question 10.}
+	Supprimée.
+	
+	\paragraph{question 11.}
+	
+	Le ML étant un langage fonctionnel, on a besoin de pouvoir définir des fonctions. On doit donc implémenter une structure de donnée qui prend en argument des paramètres, un corps et renvoie un résultat, et ceci ne peut pas être codé directement à partir des opérations données. 
+	
+	\paragraph{question 12.}
+	\paragraph{question 13.}
+	
+	La règle de typage de $\&\&$ est la suivante:
+	\begin{mathpar}
+	
+		\inferrule
+		{$$ \Gamma \vdash u : A \\ \Gamma \vdash v : A $$}
+		{$$ \Gamma \vdash u \ \&\& \ v : \textbf{bool} $$}
+	\end{mathpar}
+    La règle de typage de $+$ est similaire à celle de $plus$, définie en question 2.
+    
+	\paragraph{question 14.}
+	
+	L'instruction $let \ rec ... \ in ...$ peut inclure des programmes récursifs qui ne vont pas terminer, et donc des arbres de syntaxe abstraite infinis. L'exclure permet d'éviter ce phénomène.
+	
+	\paragraph{question 15.}
+	
+	On utilise ici une option pour signifier qu'il peut éventuellement y avoir un symbole de type $ty$, mais ce n'est pas nécessaire pour la compilation. L'intérêt d'utiliser le type $ty \ option \ ref$ et qu'on manipule directement des pointeurs, et des objets mutables, ce qui peut-être utile si on envisage un $\alpha$-renommage pas exemple.
+	
+	\paragraph{question 16.}
+	\paragraph{question 17.} boo
+\end{document}

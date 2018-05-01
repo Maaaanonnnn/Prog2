@@ -1,0 +1,55 @@
+open Ast
+
+let projsnd (t : Utils.loc*cmd) = let a, b = t in
+  b
+
+let projsndexp (e : Utils.loc * expr) = let a, b = e in
+  b
+
+  
+let evalbinop bin = match bin with
+  |Plus -> "+"
+  |Minus -> "-"
+  |Times -> "*"
+  |Div -> "÷"
+  |And -> "And"
+  |Or -> "Or"
+  |Eq -> "="
+  |Gt -> "gt"
+    
+
+
+let rec evalexpr context (expr : expr loc) = match expr with
+  |_, Var(v) -> List.assoc v context
+  |_, App(el1, el2) -> evalexpr context el1;
+    evalexpr context el2
+  |c, Lam(va, tyop, el) -> evalexpr context (c, Var va);
+    evalexpr context el
+  |_, Pair(el1, el2) -> (evalexpr context el1, evalexpr context el2)
+  |c, LetIn(va, el1, el2) -> evalexpr context (c, Var va);
+    evalexpr context el1;
+    evalexpr context el2
+  |_, Fix(el) ->  evalexpr context el
+  |_, Int(n) -> Int(n)
+  |_, Bool(b) -> Bool(b)
+  |_, Proj(ele) -> (match ele with
+    |Left(_, Pair(e1, e2)) -> evalexpr context e1
+    |Right(_, Pair(e1, e2)) -> evalexpr context e2
+    |_ -> failwith "boo")
+  |_, Ite(el1, el2, el3) -> if (evalexpr context el1)=(_, Bool(true)) then
+      evalexpr context el2
+    else
+      evalexpr context el3
+  |_, Binop(bin, el1, el2) -> evalexpr context el1;
+    Printf.printf "%s/n" (evalbinop bin);
+    evalexpr context el2
+
+
+let rec eval_ast (cmds : Ast.t) = match cmds with
+  |[] -> []
+  |(_, Let (var, tyop, exprloc))::q  -> evalexpr  (Var var);
+    evalexpr exprloc;
+    eval_ast q
+  |(_, LetRec (var, tyop, exprloc))::q -> evalexpr (Var var);
+    evalexpr exprloc;
+    eval_ast q

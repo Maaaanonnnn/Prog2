@@ -5,12 +5,19 @@ type typing_error
 let print_error fmt err = failwith "boo"
 
 
-(*let substi (x1, x2) (t1, t2) = if x1 <> t1 then (x1, t2)*)
-                                                
-let rec occurcheck v typ =  match typ with
+let rec substi v x l = match l with
   |[] -> []
+  |(d,g)::q when d=g=v-> (x, x)::(substi v x q)
+  |(d,g)::q when d = v-> (x, g)::(substi v x q)
+  |(d,g)::q when g = v-> (d, x)::(substi v x q)
+  |_ -> failwith "impossible"
+                                                
+let occurcheck v typ =  let rec aux v x typ = match typ with
+  |[] -> aux v x typ
   |(l,r)::q -> if (v = l || v = r) then failwith "failure"
-    else occurcheck v q
+    else aux v x q
+  in
+  (aux v x typ)
 
 
 

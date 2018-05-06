@@ -4,9 +4,25 @@ type typing_error
 
 let print_error fmt err = failwith "boo"
 
-let rec typing_ast ast = match ast with
-  |l, Let(va, tyop, expl) -> failwith "todo"
-  |l, LetRec(va, tyop, expl) -> failwith "todo"
+
+(*let substi (x1, x2) (t1, t2) = if x1 <> t1 then (x1, t2)*)
+                                                
+let rec occurcheck v typ =  match typ with
+  |[] -> []
+  |(l,r)::q -> if (v = l || v = r) then failwith "failure"
+    else occurcheck v q
+
+
+
+let rec robinson l = match l with
+  |[] -> []
+  |(TyVar(x),TyVar(t))::q -> if x = t then robinson q
+    else failwith "failure"
+  |(TyArrow(x1, x2), TyArrow(t1, t2))::q | (TyTimes(x1, x2), TyTimes(t1, t2))::q -> (t1, x2)::(x1, t2)::(robinson q)
+  |(TyArrow(x1, x2), TyVar(v))::q -> occurcheck (TyVar v) q 
+  |_ -> failwith "nji"
+
+
 
 
 let rec typing_expr expl = match expl with
@@ -23,15 +39,34 @@ let rec typing_expr expl = match expl with
         |Right(l, Pair(e1, e2)) -> typing_expr e2
         |_ -> failwith "typage impossible")    
   |l, Ite(el1, el2, el3) -> if (typing_expr el1 = TyBool) then
-      (typing_expr el2;
-       typing_expr el3)
+      (let e2 = typing_expr el2 in
+      let e3 = typing_expr el3 in
+       if (e2 = e3) then e2
+       else
+      failwith "boo")
     else
-      failwith "uncorrect type!"      
+      (failwith "uncorrect type!")      
   |l, Binop(bin, el1, el2) -> if ( (typing_expr el1 = TyInt) && (typing_expr el2 = TyInt))then
       TyInt
     else
       failwith "uncorrect type!"
 
 
+
+(*let typing_binop bin e1 e2   = match bin with
+  |Plus -> gh
+  |Minus -> ckdjl
+  |Times -> ed
+  |Div -> csjkm
+  |And -> d
+  |Or -> d
+  |Eq -> de
+  |Gt ->d
+*)
+
+
                   
                   
+let rec typing_ast ast = match ast with
+  |l, Let(va, tyop, expl) -> typing_expr expl
+  |l, LetRec(va, tyop, expl) -> typing_expr expl

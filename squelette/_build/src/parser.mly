@@ -22,7 +22,7 @@
 %token<Utils.loc*string> ID
 %token<string> TYID
 %token<Utils.loc*int> NUM
-%token<Utils.loc> TRUE FALSE
+%token<Utils.loc> TRUE FALSE UNIT
 
 %left EQUAL
 %left AND OR
@@ -56,6 +56,8 @@ typ:
     { TyArrow(tl,tr) }
     | tl=typ TIMES tr=typ
     { TyTimes(tl,tr) }
+    |UNIT
+    {TyUnit}
 
 %inline binop:
     | PLUS
@@ -88,6 +90,8 @@ atomicexpr:
         { $1, Bool true }
     | FALSE
         { $1, Bool false }
+    | UNIT
+	{ $1, Unit }
 
 appexpr:
     | s=atomicexpr

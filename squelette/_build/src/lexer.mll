@@ -25,6 +25,7 @@ rule token = parse
   | "fst"     { FST }
   | "snd"     { SND }
   | "true"    { TRUE (get_loc lexbuf) }
+  | "()"      { UNIT (get_loc lexbuf) }   
   | "false"   { FALSE (get_loc lexbuf) }
   | "&&"      { AND }
   | "||"      { OR }
@@ -56,3 +57,4 @@ and comment = parse
   | '\n' { new_line lexbuf ; comment lexbuf }
   | _    { comment lexbuf }
   | eof  { raise (Error ("Unexpected end of file."))  }
+ 

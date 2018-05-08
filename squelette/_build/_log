@@ -71,16 +71,21 @@ ocamlopt.opt -c -I src -o src/parser.cmx src/parser.ml # cached
 ocamlopt.opt -c -I src -o src/printer.cmx src/printer.ml # cached
 # Target: src/typing.ml.depends, tags: { external_tokens(Tokens), explain, extension:ml, file:src/typing.ml, ocaml, ocamldep, quiet, traverse, use_menhir }
 ocamldep.opt -modules src/typing.ml > src/typing.ml.depends
+# Target: src/genlab.ml.depends, tags: { external_tokens(Tokens), explain, extension:ml, file:src/genlab.ml, ocaml, ocamldep, quiet, traverse, use_menhir }
+ocamldep.opt -modules src/genlab.ml > src/genlab.ml.depends
+# Target: src/genlab.cmo, tags: { external_tokens(Tokens), byte, compile, explain, extension:cmo, extension:ml, file:src/genlab.cmo, file:src/genlab.ml, implem, ocaml, quiet, traverse, use_menhir }
+ocamlc.opt -c -I src -o src/genlab.cmo src/genlab.ml
+# Target: src/genlab.cmx, tags: { external_tokens(Tokens), compile, explain, extension:cmx, extension:ml, file:src/genlab.cmx, file:src/genlab.ml, implem, native, ocaml, quiet, traverse, use_menhir }
+ocamlopt.opt -c -I src -o src/genlab.cmx src/genlab.ml
 # Target: src/typing.cmx, tags: { external_tokens(Tokens), compile, explain, extension:cmx, extension:ml, file:src/typing.cmx, file:src/typing.ml, implem, native, ocaml, quiet, traverse, use_menhir }
 ocamlopt.opt -c -I src -o src/typing.cmx src/typing.ml
 + ocamlopt.opt -c -I src -o src/typing.cmx src/typing.ml
-File "src/typing.ml", line 1:
-Error: The implementation src/typing.ml
-       does not match the interface src/typing.cmi:
-       Values do not match:
-         val typing_ast : 'a * Ast.cmd -> Ast.ty
-       is not included in
-         val typing_ast : Ast.t -> (Ast.t, typing_error) Utils.result
-       File "src/typing.ml", line 70, characters 8-18: Actual declaration
-Command exited with code 2.
-# Compilation unsuccessful.
+File "src/typing.ml", line 37, characters 27-108:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(_, (Unit|Var _|Int _|Bool _|Proj _))
+# Target: src/main.cmx, tags: { external_tokens(Tokens), compile, explain, extension:cmx, extension:ml, file:src/main.cmx, file:src/main.ml, implem, native, ocaml, quiet, traverse, use_menhir }
+ocamlopt.opt -c -I src -o src/main.cmx src/main.ml
+# Target: src/main.native, tags: { external_tokens(Tokens), dont_link_with, explain, extension:native, file:src/main.native, link, native, ocaml, program, quiet, traverse, use_menhir }
+ocamlopt.opt -I src src/utils.cmx src/ast.cmx src/closure.cmx src/eval.cmx src/genlab.cmx src/tokens.cmx src/lexer.cmx src/parser.cmx src/printer.cmx src/typing.cmx src/main.cmx -o src/main.native
+# Compilation successful.

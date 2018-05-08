@@ -32,6 +32,8 @@ let rec print_ty fmt = function
   | TyVar x -> Format.fprintf fmt "%a" print_var_ty x
   | TyArrow(tyl,tyr) -> Format.fprintf fmt "%a -> %a" print_ty_wp tyl print_ty tyr
   | TyTimes(tyl,tyr) -> Format.fprintf fmt "%a * %a" print_ty_wp tyl print_ty tyr
+  |TyUnit   -> Format.fprintf fmt "unit"
+                 
 and print_ty_wp fmt = function
   | TyInt | TyBool | TyVar _ as t -> print_ty fmt t
   | _ as ty -> Format.fprintf fmt "(%a)" print_ty ty
@@ -71,6 +73,8 @@ let rec print_expr fmt expr =
                                    (print_lc_expr) el (print_lc_expr) er
   | Binop(b,el,er)            -> Format.fprintf fmt "%a %a %a" (print_lc_expr_wp) el
                                    print_binop b (print_lc_expr) er
+  |Unit -> Format.fprintf fmt "%s" "()"
+             
 and print_expr_wp fmt = function
   | Var _ | Int _ | Bool _ as e -> print_expr fmt e
   | _ as e -> Format.fprintf fmt "(%a)" print_expr e

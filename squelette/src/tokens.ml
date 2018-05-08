@@ -30,3 +30,4 @@ type token =
   | AND
   | OR
   | GT
+  | UNIT of Utils.loc

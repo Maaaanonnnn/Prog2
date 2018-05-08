@@ -46,6 +46,7 @@ let rec evalexpr context (expr : expr loc) = match expr with
     else
       evalexpr context el3
   |l, Binop(bin, el1, el2) -> evalbinop bin context (l, (evalexpr context el1)) (l, (evalexpr context el2))
+  |_, Unit -> Unit
 
 
 

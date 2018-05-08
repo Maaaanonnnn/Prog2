@@ -33,7 +33,7 @@ let rec robinson l = match l with
       substi x1 (TyVar v) l      
   |_ -> l
 
-
+(* précise les types des variable d'une expression, permet notamment de présiser le type des lambda abstactions *)
 let rec addvartype exprl = match exprl with
   |l, Lam(var, None, el) -> l, Lam(var, Some (TyVar genlab), addvartype el)
   |l, Lam(var, Some t, el) -> l, Lam(var, Some t, addvartype el)
@@ -50,7 +50,7 @@ let rec addvartype exprl = match exprl with
   |l, Binop(bin, el1, el2) -> l, Binop(bin, addvartype el1, addvartype el2)
   |l, Unit -> l, Unit  
 
-
+(* rajoute des contraintes de type à une liste de contraintes, initialement vide *)
 let rec contrainte context expl lc = match expl with
   |l, Var(v) ->  List.assoc v context, lc
   |l, Lam(var, Some t, el) -> let t', lc' = contrainte ((var,t)::context) el lc in
@@ -83,7 +83,7 @@ let rec contrainte context expl lc = match expl with
   |l, Unit -> TyUnit, lc
   |_,_ -> failwith "impossible"
 
-
+(* permet d'associer les variables à leur type à partir de la liste de contraintes construite précédemment *)
 let rec inter typ lcont = match typ with
   |TyVar(v) -> List.assoc (TyVar v) lcont
   |TyInt -> TyInt
@@ -93,48 +93,26 @@ let rec inter typ lcont = match typ with
   |TyUnit -> TyUnit
 
 
+(* permet le typage d'une expression à partir du contexte c dans lequel ses variables sont*)
+let typing_expr c expl = let ex = addvartype expl in
+  let ty, contr = contrainte c ex [] in
+  let unif = robinson contr in
+  let replace = inter ty unif in
+  replace
 
-let rec typing_expr c expl = match expl with
-  |l, Var(v) -> TyVar v
-  |l, App(el1, el2) -> let e1 = TyVar genlab in
-    let e2 =TyVar genlab in
-    TyArrow (e1, e2) 
-  |l, Lam(var, tyop, el) -> TyVar var 
-  |l, Pair(el1, el2) -> TyTimes(typing_expr c el1, typing_expr c el2)
-  |l, LetIn(var, el1, el2) -> failwith "todo"
-  |l, Fix(el) -> typing_expr c el
-  |l, Int(n) -> TyInt
-  |l, Bool(b) -> TyBool
-  |l, Proj(ele) -> (match ele with
-        |Left(l, Pair(e1, e2)) -> typing_expr c e1
-        |Right(l, Pair(e1, e2)) -> typing_expr c e2
-        |_ -> failwith "typage impossible")    
-  |l, Ite(el1, el2, el3) -> if (typing_expr c el1 = TyBool) then
-      (let e2 = typing_expr c el2 in
-      let e3 = typing_expr c el3 in
-       if (e2 = e3) then e2
-       else
-      failwith "boo")
-    else
-      (failwith "uncorrect type!")      
-  |l, Binop(bin, el1, el2) -> if ( (typing_expr c el1 = TyInt) && (typing_expr c el2 = TyInt))then
-      TyInt
-    else
-      failwith "uncorrect type!"
-  |l, Unit -> TyUnit 
-
-
-
-
-
-
+(* type les commandes *)
+let typing_commande c cmd = match cmd with
+  |Let(va, tyop, expl) -> typing_expr c expl
+  |LetRec(va, tyop, expl) -> typing_expr c expl
+                 
                   
-                  
-let rec typing_ast (ast: Ast.t) = failwith "g,rk" (*let tl = (match ast with
+let rec typing_ast (ast: Ast.t) = failwith "ne marche pas" (*let tl = (match ast with
   | [] -> []
   | (l, Let(va, tyop, expl))::q ->  (match tyop with
       |None -> (typing_expr expl)::(typing_ast q)
       |Some t -> (t)::(typing_ast q) )
-  | (l, LetRec(va, tyop, expl))::q -> (match tyop wi((typing_expr expl) )::typing_ast q
+  | (l, LetRec(va, tyop, expl))::q -> (match tyop ((typing_expr expl) )::typing_ast q
+
   ) in Ok(tl)
-                                                  *)
+                                                  
+                                  *)

@@ -1,1 +1,1 @@
-src/typing.ml: Ast Genlab
+src/typing.ml: Ast Genlab List
